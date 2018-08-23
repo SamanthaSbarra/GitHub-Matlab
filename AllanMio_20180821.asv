@@ -46,7 +46,7 @@ fprintf(f,'%5s %f\n','slope',slope);
 fclose(f);
 
 % importare file della traccia temporale della fase
-PhaseTimeTrace=importdata(TracciaTemporale,';',9);
+PhaseTimeTrace=importdata(TracciaTemporale,';');
 Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
 n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
 
@@ -78,7 +78,8 @@ for m=1:n_modi
     Allan(:,m)=Y*slope/f0;
 end
 %Indicare percorso di scrittura file dati x=tempo di integrazione e y=Allan deviation
-dlmwrite('C:\Users\will\Desktop\Misure\Misure-20180725\Allan-20180725-15mW-150mVpk-OpenLoop.DAT',[tau Allan])
+FileAllan=percorso+"Allan-20180725-15mW-150mVpk-OpenLoop.DAT";
+dlmwrite(FileAllan,[tau Allan])
 
 figure(2)
 loglog(tau,Allan,'o');

@@ -6,7 +6,8 @@ format long
 percorso='C:\Users\will\Dropbox\Misure\Misure-20180725';
 %%nome file sweep
 fileSweep='20180725-1s6d5-15mW-150mVpk-sweepRBM3.txt';
-
+%%nome file traccia temporale
+TracciaTemporale='20180725-s6d5-15mW-150mVpk-3Modes-openloop.txt';
 
 addpath percorso;
 Sweep=importdata(fileSweep,';',8);
@@ -45,7 +46,7 @@ fprintf(f,'%5s %f\n','slope',slope);
 fclose(f);
 
 % importare file della traccia temporale della fase
-PhaseTimeTrace=importdata('20180725-s6d5-15mW-150mVpk-3Modes-openloop.txt',';',9);
+PhaseTimeTrace=importdata(TracciaTemporale,';');
 Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
 n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
 
