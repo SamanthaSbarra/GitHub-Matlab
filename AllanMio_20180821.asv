@@ -46,7 +46,9 @@ fclose(f);
 PhaseTimeTrace=importdata('20180725-1s6d5-15mW-150mVpk-3Modes-openloop.txt',';',9);
 Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
 n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
-
+% % Values=importdata('s6d5 Optical modulation -RBM1-15mW-150mVpk.DAT');
+% % f0=Values.data(4,1); %Hz
+% % slope=Values.data(5,1); %Hz/deg
 if slope<0
     slope=-slope;
 end    
@@ -74,7 +76,7 @@ for m=1:n_modi
     Allan(:,m)=Y;
     Allan(:,m)=Y*slope/f0;
 end
-%Indicare percorso di scrittura file dati x=tempo di integrazione e y=Allan deviation
+%scrittura file con x=tempo di integrazione e y=Allan deviation
 dlmwrite('C:\Users\will\Desktop\Misure\Misure-20180725\Allan-20180725-15mW-150mVpk-OpenLoop.DAT',[tau Allan])
 
 figure(2)
@@ -86,7 +88,6 @@ title('20180725-15mW-150mVpk-OpenLoop','fontsize',12)
 % legend({'slope=' num2str(slope)},'FontSize',16);
 %legend( sprintf('slope %f Hz/deg', slope) )
 
-%indicare percorso scrittura file immagine .png e .fig
 box on
 %print('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-100mVpk-sweep-1526~5nm-RBM1SecondPeak-1~717KHz-1min-Figure','-dpng')
 savefig('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-150mVpk-sweep-1526~5nm-RBM1-3~43KHz-1min-Figure.fig')
