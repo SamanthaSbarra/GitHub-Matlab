@@ -3,13 +3,15 @@ clc
 format long
 
 %%introdurre la cartella di lavoro
-addpath C:\Users\will\Dropbox\Misure\Misure-20180725
+percorso='C:\Users\will\Dropbox\Misure\Misure-20180725';
+%%nome file sweep
+fileSweep='20180725-1s6d5-15mW-150mVpk-sweepRBM3.txt';
 
-%%importare sweep per ottenere slope e f0
-Sweep=importdata('20180725-1s6d5-15mW-150mVpk-sweepRBM3.txt',';',8);
+
+addpath percorso;
+Sweep=importdata(fileSweep,';',8);
 
 figure(1)
-title('s6d5 Optical modulation -RBM3-15mW-150mVpk','fontsize',30)
 xAmpli=Sweep.data(1:end/2,1);
 yAmpli=Sweep.data(1:end/2,2);
 xPhase=Sweep.data(end/2+1:end,1);
@@ -19,7 +21,6 @@ ax1 = subplot(2,1,1);
         plot(xAmpli*1e-6,yAmpli,'linewidth',1.2 )
         ylabel(ax1,'Amplitude(dB)','fontsize',18)
         xlabel(ax1,'Frequency (MHz)','fontsize',18);
-        
         box on
 ax2 = subplot(2,1,2);
         hold on
@@ -34,7 +35,8 @@ close
 
 %%scrittura file con punti scelti , slope, f0. Inserire Percorso di
 %%scrittura
-f = fopen('C:\Users\will\Dropbox\Misure\Misure-20180725\s6d5 Optical modulation -RBM3-15mW-150mVpk.DAT','w')
+fileName=percorso+"\s6d5-OpticalModulation-RBM3-15mW-150mVpk.DAT";
+f = fopen(fileName,'w')
 fprintf(f,'%5s %f %f\n','P(1)',xP(1),yP(1));
 fprintf(f,'%5s %f %f\n','P(2)',xP(2),yP(2));
 fprintf(f,'%5s %f %f\n\n','P(3)',xP(3),yP(3));
@@ -43,7 +45,7 @@ fprintf(f,'%5s %f\n','slope',slope);
 fclose(f);
 
 % importare file della traccia temporale della fase
-PhaseTimeTrace=importdata('20180725-1s6d5-15mW-150mVpk-3Modes-openloop.txt',';',9);
+PhaseTimeTrace=importdata('20180725-s6d5-15mW-150mVpk-3Modes-openloop.txt',';',9);
 Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
 n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
 

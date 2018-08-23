@@ -3,13 +3,16 @@ clc
 format long
 
 %%introdurre la cartella di lavoro
-addpath C:\Users\will\Dropbox\Misure\Misure-20180725
+percorso='C:\Users\will\Dropbox\Misure\Misure-20180725';
+%%nome file sweep
+fileSweep='20180725-1s6d5-15mW-150mVpk-sweepRBM3.txt';
+%%nome file traccia temporale
+TracciaTemporale='20180725-s6d5-15mW-150mVpk-3Modes-openloop.txt';
 
-%%importare sweep per ottenere slope e f0
-Sweep=importdata('20180725-1s6d5-15mW-150mVpk-sweepRBM3.txt',';',8);
+addpath percorso;
+Sweep=importdata(fileSweep,';',8);
 
 figure(1)
-title('s6d5 Optical modulation -RBM3-15mW-150mVpk','fontsize',30)
 xAmpli=Sweep.data(1:end/2,1);
 yAmpli=Sweep.data(1:end/2,2);
 xPhase=Sweep.data(end/2+1:end,1);
@@ -19,7 +22,6 @@ ax1 = subplot(2,1,1);
         plot(xAmpli*1e-6,yAmpli,'linewidth',1.2 )
         ylabel(ax1,'Amplitude(dB)','fontsize',18)
         xlabel(ax1,'Frequency (MHz)','fontsize',18);
-        
         box on
 ax2 = subplot(2,1,2);
         hold on
@@ -34,7 +36,8 @@ close
 
 %%scrittura file con punti scelti , slope, f0. Inserire Percorso di
 %%scrittura
-f = fopen('C:\Users\will\Dropbox\Misure\Misure-20180725\s6d5 Optical modulation -RBM3-15mW-150mVpk.DAT','w')
+fileName=percorso+"\s6d5-OpticalModulation-RBM3-15mW-150mVpk.DAT";
+f = fopen(fileName,'w')
 fprintf(f,'%5s %f %f\n','P(1)',xP(1),yP(1));
 fprintf(f,'%5s %f %f\n','P(2)',xP(2),yP(2));
 fprintf(f,'%5s %f %f\n\n','P(3)',xP(3),yP(3));
@@ -43,12 +46,10 @@ fprintf(f,'%5s %f\n','slope',slope);
 fclose(f);
 
 % importare file della traccia temporale della fase
-PhaseTimeTrace=importdata('20180725-1s6d5-15mW-150mVpk-3Modes-openloop.txt',';',9);
+PhaseTimeTrace=importdata(TracciaTemporale,';',9);
 Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
 n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
-% % Values=importdata('s6d5 Optical modulation -RBM1-15mW-150mVpk.DAT');
-% % f0=Values.data(4,1); %Hz
-% % slope=Values.data(5,1); %Hz/deg
+
 if slope<0
     slope=-slope;
 end    
@@ -76,7 +77,7 @@ for m=1:n_modi
     Allan(:,m)=Y;
     Allan(:,m)=Y*slope/f0;
 end
-%scrittura file con x=tempo di integrazione e y=Allan deviation
+%Indicare percorso di scrittura file dati x=tempo di integrazione e y=Allan deviation
 dlmwrite('C:\Users\will\Desktop\Misure\Misure-20180725\Allan-20180725-15mW-150mVpk-OpenLoop.DAT',[tau Allan])
 
 figure(2)
@@ -88,6 +89,7 @@ title('20180725-15mW-150mVpk-OpenLoop','fontsize',12)
 % legend({'slope=' num2str(slope)},'FontSize',16);
 %legend( sprintf('slope %f Hz/deg', slope) )
 
+%indicare percorso scrittura file immagine .png e .fig
 box on
 %print('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-100mVpk-sweep-1526~5nm-RBM1SecondPeak-1~717KHz-1min-Figure','-dpng')
 savefig('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-150mVpk-sweep-1526~5nm-RBM1-3~43KHz-1min-Figure.fig')
