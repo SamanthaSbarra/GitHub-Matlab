@@ -22,13 +22,13 @@ for i=1:length(fileTxt)
     z=strfind(fileTxt(i).name,'OpenLoop');
     if ~isempty(k)||~isempty(z)
         TracciaTemporale=importdata(fileTxt(i).name,';');
-        serie=strfind(fileTxt(i).name,'s');
-        for w=1:length(serie)
-            if isnumeric(fileTxt(i).name(serie(w)))==1
-                serie
-        disco=strfind(fileTxt(i).name,'d');
-%         serie=fileTxt(i).name(2);
-%         disco=fileTxt(i).name(4);
+        s=strfind(fileTxt(i).name,'s');
+        for w=1:length(s)
+            if fileTxt(i).name(s(w)+2)=='d';
+                serie=fileTxt(i).name(s(w)+1);
+                disco=fileTxt(i).name(s(w)+3);
+            end
+        end    
         power=strfind(fileTxt(i).name,'mW');
         power=fileTxt(i).name(power-2:power+1);
         amplit=strfind(fileTxt(i).name,'mVpk');
@@ -62,8 +62,8 @@ for i=1:n_modi
     close
     %%scrittura file con punti scelti , slope, f0. Inserire Percorso di
     %%scrittura
-    fileName=percorso+"\s6d5-OpticalModulation-RBM3-15mW-150mVpk.DAT";
-    f = fopen(fileName,'w')
+    fileName=sprintf('s%sd%s-RBM%d-%s-%s.DAT',serie,disco,i,power,amplit);
+    f = fopen(percorso+"\"+fileName,'w')
     fprintf(f,'%5s %f %f\n','P(1)',xP(1),yP(1));
     fprintf(f,'%5s %f %f\n','P(2)',xP(2),yP(2));
     fprintf(f,'%5s %f %f\n\n','P(3)',xP(3),yP(3));
@@ -104,18 +104,22 @@ for m=1:n_modi
     Allan(:,m)=Y*slope/f0;
 end
 %Indicare percorso di scrittura file dati x=tempo di integrazione e y=Allan deviation
-dlmwrite('C:\Users\will\Desktop\Misure\Misure-20180725\Allan-20180725-15mW-150mVpk-OpenLoop.DAT',[tau Allan])
+fileName=sprintf('s%sd%s-%s-%s-%s',serie,disco,power,amplit,Mode);
+dlmwrite(percorso+"\"+fileName+".DAT",[tau Allan])
 
 figure(2)
-loglog(tau,Allan,'o');
+for i=1:n_modi
+loglog(tau,Allan(:,i),'o','DisplayName', ['RBM', num2str(i)]);
+legend( sprintf('RBM%d', i) )
+end
 xlabel('time (sec)');
 ylabel('\sigma_{Allan}(\tau)')
 set(gca,'fontsize',16)
-title('20180725-15mW-150mVpk-OpenLoop','fontsize',12)
-% legend({'slope=' num2str(slope)},'FontSize',16);
-%legend( sprintf('slope %f Hz/deg', slope) )
+title(fileName,'fontsize',12)
+
+
 
 %indicare percorso scrittura file immagine .png e .fig
 box on
-%print('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-100mVpk-sweep-1526~5nm-RBM1SecondPeak-1~717KHz-1min-Figure','-dpng')
-savefig('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-150mVpk-sweep-1526~5nm-RBM1-3~43KHz-1min-Figure.fig')
+print(percorso+"\"+fileName,'-dpng')
+savefig(percorso+"\"+fileName+".fig")

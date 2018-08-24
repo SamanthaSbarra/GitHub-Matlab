@@ -24,7 +24,7 @@ for i=1:length(fileTxt)
         TracciaTemporale=importdata(fileTxt(i).name,';');
         s=strfind(fileTxt(i).name,'s');
         for w=1:length(s)
-            if fileTxt(i).name(s(w)+2)=='d';
+            if fileTxt(i).name(s(w)+2)=='d'
                 serie=fileTxt(i).name(s(w)+1);
                 disco=fileTxt(i).name(s(w)+3);
             end
@@ -35,6 +35,11 @@ for i=1:length(fileTxt)
         amplit=fileTxt(i).name(amplit-3:amplit+3);
         date=strfind(fileTxt(i).name,'2018');
         date=fileTxt(i).name(date:date+7);
+        if k>0
+            Mode='OpenLoop';
+        else    
+            Mode='PLL';
+        end
     end   
 end    
 
@@ -62,8 +67,8 @@ for i=1:n_modi
     close
     %%scrittura file con punti scelti , slope, f0. Inserire Percorso di
     %%scrittura
-    fileName=percorso+"\s6d5-OpticalModulation-RBM3-15mW-150mVpk.DAT";
-    f = fopen(fileName,'w')
+    fileName=sprintf('s%sd%s-RBM%d-%s-%s.DAT',serie,disco,i,power,amplit);
+    f = fopen(percorso+"\"+fileName,'w');
     fprintf(f,'%5s %f %f\n','P(1)',xP(1),yP(1));
     fprintf(f,'%5s %f %f\n','P(2)',xP(2),yP(2));
     fprintf(f,'%5s %f %f\n\n','P(3)',xP(3),yP(3));
@@ -72,19 +77,14 @@ for i=1:n_modi
     fclose(f);
 end
 % importare file della traccia temporale della fase
-PhaseTimeTrace=importdata(TracciaTemporale,';');
-Pos_fin=find(PhaseTimeTrace.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
-n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti
+Pos_fin=find(TracciaTemporale.data(:,1)==0); %%identifica la posizione nel vettore tempo di t=0 che corrisponde all'ultimo acquisito per ogni modo
+n_modi=length(Pos_fin); %%identifica il numero di modi presenti nella traccia temporale in funzione del numero di zeri presenti   
 
-if slope<0
-    slope=-slope;
-end    
-
-time=PhaseTimeTrace.data(1:Pos_fin(1),1);
+time=TracciaTemporale.data(1:Pos_fin(1),1);
 N=numel(time);
 for m=1:n_modi 
     clear phase
-    phase(:)=PhaseTimeTrace.data(1+(m-1)*N:Pos_fin(m),2);
+    phase(:)=TracciaTemporale.data(1+(m-1)*N:Pos_fin(m),2);
     tau=zeros(floor(N/2),1);
     p=0;
 
@@ -101,21 +101,27 @@ for m=1:n_modi
         Y(n)=sqrt(1/(2*(floor(N/n)-1))*diff);
     end
     Allan(:,m)=Y;
-    Allan(:,m)=Y*slope/f0;
+    if slope(m)<0
+        slope(m)=-slope(m);
+    end 
+    Allan(:,m)=Y*slope(m)/f0(m);
 end
 %Indicare percorso di scrittura file dati x=tempo di integrazione e y=Allan deviation
-dlmwrite('C:\Users\will\Desktop\Misure\Misure-20180725\Allan-20180725-15mW-150mVpk-OpenLoop.DAT',[tau Allan])
+fileName=sprintf('s%sd%s-%s-%s-%s',serie,disco,power,amplit,Mode);
+dlmwrite(percorso+"\"+fileName+".DAT",[tau Allan])
 
 figure(2)
-loglog(tau,Allan,'o');
+for i=1:n_modi
+loglog(tau,Allan(:,i),'o','DisplayName', ['RBM', num2str(i)]);
+legend
+hold on
+end
 xlabel('time (sec)');
 ylabel('\sigma_{Allan}(\tau)')
 set(gca,'fontsize',16)
-title('20180725-15mW-150mVpk-OpenLoop','fontsize',12)
-% legend({'slope=' num2str(slope)},'FontSize',16);
-%legend( sprintf('slope %f Hz/deg', slope) )
+title(fileName,'fontsize',12)
 
 %indicare percorso scrittura file immagine .png e .fig
 box on
-%print('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-100mVpk-sweep-1526~5nm-RBM1SecondPeak-1~717KHz-1min-Figure','-dpng')
-savefig('C:\Users\will\Desktop\Misure\Misure-20180718\RBM1\20180718-15mW-150mVpk-sweep-1526~5nm-RBM1-3~43KHz-1min-Figure.fig')
+print(percorso+"\"+fileName,'-dpng')
+savefig(percorso+"\"+fileName+".fig")
