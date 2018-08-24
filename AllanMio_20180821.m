@@ -13,7 +13,7 @@ for i=1:length(fileTxt)
         n_modi=n_modi+1;
         k=strfind(fileTxt(i).name,'RBM');
         j=str2num(fileTxt(i).name(k+1));
-        Sweep(i)=importdata(fileTxt(i).name,';');
+        Sweep(n_modi)=importdata(fileTxt(i).name,';');
     end
 end    
 
@@ -35,7 +35,7 @@ for i=1:length(fileTxt)
         amplit=fileTxt(i).name(amplit-3:amplit+3);
         date=strfind(fileTxt(i).name,'2018');
         date=fileTxt(i).name(date:date+7);
-        if k>0
+        if ~isempty(z)>0
             Mode='OpenLoop';
         else    
             Mode='PLL';
